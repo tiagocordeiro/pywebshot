@@ -5,7 +5,7 @@ import re
 import click
 from selenium import webdriver
 
-def save_screenshot(url:str, width:int, height:int, metodo:str, filename:str):
+def save_screenshot(url:str, width:int, height:int, metodo:str, filename:str, hide:str):
     options = webdriver.ChromeOptions()
     options.add_argument('headless')
 
@@ -13,6 +13,10 @@ def save_screenshot(url:str, width:int, height:int, metodo:str, filename:str):
     browser = webdriver.Chrome(options=options)
     browser.set_window_size(width, height)
     browser.get(url)
+
+    if hide:
+        browser.execute_script(f'document.querySelector("{hide}").style.display = "none";')
+        browser.execute_script(f'document.querySelector("{hide}").style.visibility = "hidden";')
 
     if metodo == 'fullpage':
         scroll_height = browser.execute_script('return document.body.parentNode.scrollHeight')
@@ -41,12 +45,13 @@ def filename_gen(url:str):
 @click.option('--metodo', default='window', help='window or fullpage')
 @click.option('--width', default=1280, help='Largura da tela. Padrão 1280')
 @click.option('--height', default=800, help='Altura da tela. Padrão 800')
+@click.option('--hide', default=None, help='Elementos que você quer ocultar na captura')
 @click.argument('url')
-def main(url:str, width:int, height:int, metodo:str):
+def main(url:str, width:int, height:int, metodo:str, hide:str):
     url = url
     filename = filename_gen(url)
 
-    save_screenshot(url, width, height, metodo, filename)
+    save_screenshot(url, width, height, metodo, filename, hide)
  
     return
 
